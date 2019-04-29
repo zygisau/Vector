@@ -14,7 +14,7 @@ private:
     double* elem;
 public:
     Vector() : sz(0), elem(new double[sz]) {};
-    Vector(int size, double val) : sz(size), elem(new double(size)) { std::fill_n(elem, sz, val); }
+    Vector(int size, double val) : sz(size), elem(new double[size]) { std::fill_n(elem, sz, val); }
     Vector(const Vector& v) : elem{new double[v.sz]}, sz{v.sz} {
         for(int i=0; i!=sz; ++i) elem[i] = v.elem[i];
     } // TODO: std:copy(v.begin(), v.back(), this.begin()) begin, back, end

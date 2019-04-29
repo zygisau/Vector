@@ -18,7 +18,3 @@ Vector& Vector::operator=(const Vector& v) {
 
     return *this;
 }
-
-//int& Vector::operator<<(const double& v) {
-//    return v;
-//}

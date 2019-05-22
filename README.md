@@ -1,135 +1,264 @@
 # Vector
-Savadarbė C++ vektoriaus klasė.
+"Rankų darbo" C++ vektoriaus klasė.
 
 ### Funkcijos
 5 pasirinktos man labiausiai patikusios realizuoti funkcijos
 
+##### Reserve
+
 ```c++
-void reserve(int _n) {
-        // If n is greater than the current vector capacity
+void reserve(size_type _n) {
+    if (_n > capacity()) {
+        // allocate new memory
+        iterator _new_elem = alloc.allocate(_n);
+        iterator _new_avail = std::uninitialized_copy(_elem, _avail, _new_elem);
 
-        if(_n > _capac) {
-            _T* _temp = _elem;
+        // delete data
+        uncreate();
 
-            _elem = new _T[_n]; // the function causes the container to reallocate its storage increasing its capacity to n
-            
-            std::copy(&_temp[0], &_temp[_sz], &_elem[0]);
-            _change_size_and_capacity(_sz, _n); // size remains the same
-        }
+        // update pointers
+        _elem = _new_elem;
+        _avail = _new_avail;
+        _limit = _elem + _n;
     }
+}
 ```
 
+##### Resize 	
+
+```c++
+void resize(size_type _n, value_type _val = _T()) {
+    if (_n < size()) {
+        iterator _new_elem = alloc.allocate(_n);
+        iterator _new_avail = std::uninitialized_copy(_elem, _elem+_n, _new_elem);
+
+        // delete data
+        uncreate();
+
+        // update pointers
+        _elem = _new_elem;
+        _avail = _new_avail;
+        _limit = _elem + _n;
+    }
+    if(_n > size()) {
+        iterator _new_elem = alloc.allocate(_n);
+        iterator _new_avail = std::uninitialized_copy(_elem, _elem+size(), _new_elem);
+        std::uninitialized_fill(_elem+size(), _elem+_n, _val);
+
+        iterator _new_limit;
+        if (capacity() < _new_avail - _new_elem)
+        {
+            _new_limit = _new_avail;
+        }
+        else
+        {
+            _new_limit = _new_elem + capacity();
+        }
+
+        // delete data
+        uncreate();
+
+        // update pointers
+        _elem = _new_elem;
+        _avail = _new_avail;
+        _limit = _new_limit;
+    }
+}
+```
+
+##### Pop_back
 
 
 ```c++
-void resize(unsigned int _n) {
-        // If n is smaller than the current container size, the content is reduced to its first n elements, removing those beyond (and destroying them).
-        _T* _temp;
-        if (_n < _sz) {
-            _temp = new _T[_n];
-            std::copy(&_elem[0], &_elem[_n], &_temp[0]);
+void pop_back() {
+    iterator _last_elem = _avail;
+    alloc.destroy(--_last_elem);
+    _avail = _last_elem;
+}
+```
 
-            delete[] _elem;
-            _elem = _temp;
+##### Erase
 
-            _change_size_and_capacity(_n, _n);
+```c++
+void erase(iterator _first, iterator _last) {
+// if erase ranges all the way to the last element
+    if (_last == _avail && _elem != nullptr) {
+        // allocate new memory and copy elements
+        iterator _new_elem = alloc.allocate(_first - _elem);
+        iterator _new_avail = std::uninitialized_copy(_elem, _first, _new_elem);
+
+     	// destroy old memory
+        uncreate();
+
+        // update pointers
+        _elem = _new_elem;
+        _avail = _limit = _new_avail;
+    } else {
+        // allocate new memory
+        iterator _new_elem = alloc.allocate(size() - (_last - _first));
+        iterator _new_avail;
+// if erase starts from the start of the vector
+        if (_first == _elem && _elem != nullptr) {
+            // fill remaining values
+            _new_avail = std::uninitialized_copy(_last, _avail, _new_elem);
+// if erase starts from the end of the vector
+        } else if (_first == _avail && _elem != nullptr) {
+            // fill remaining values
+            _new_avail = std::uninitialized_copy(_elem, _avail-1, _new_elem);
+// if there are no elements
+        } else if(_avail == nullptr) {
+			
+        } else {
+            // fill old values before pos
+            _new_avail = std::uninitialized_copy(_elem, _first, _new_elem);
+            // fill old values after pos
+            _new_avail = std::uninitialized_copy(_last, _avail, _new_elem + (_first - _elem));
         }
 
-        //  If n is greater than the current container size, the content is expanded by inserting at the end as many elements as needed to reach a size of n.
-        if (_n > _sz) {
-            // If n is also greater than the current container capacity, an automatic reallocation of the allocated storage space takes place.
-            if (_n > _capac) {
-                reserve(_n);
-                std::fill(&_elem[_sz], &_elem[_n], 0);
-                _change_size_and_capacity(_n, _n);
+        // destroy old elements (if were any)
+        if(!empty()) uncreate();
+
+        // update pointers
+        _elem = _new_elem;
+        _avail = _limit = _new_avail;
+    }
+}
+```
+
+##### Insert
+
+```c++
+void insert(iterator _pos, iterator _first, iterator _last) {
+    // determine new size
+    size_type _new_size = size() + (_last - _first);
+
+    if (_new_size > capacity()) {
+        // new memory allocation
+        iterator _new_elem = alloc.allocate(_new_size);
+        iterator _new_avail;
+// if position iterator points to the first elem
+        if (_pos == _elem && _elem != nullptr) {
+            // fill new values
+            _new_avail = std::uninitialized_copy(_first, _last, _new_elem);
+            // fill old values
+            _new_avail = std::uninitialized_copy(_pos, _avail, _new_elem + (_last - _first));
+// if position iterator points to the *last* element
+        } else if (_pos == _avail && _elem != nullptr) {
+            // fill old values
+            _new_avail = std::uninitialized_copy(_elem, _pos, _new_elem);
+            // fill new values
+            _new_avail = std::uninitialized_copy(_first, _last, _new_elem + (_first - _last));
+// if there are no elements in the vector
+        } else if(_avail == nullptr) {
+            _new_avail = std::uninitialized_copy(_first, _last, _new_elem);
+        } else {
+            // fill old values before pos
+            _new_avail = std::uninitialized_copy(_elem, _pos, _new_elem);
+            // fill new values
+            _new_avail = std::uninitialized_copy(_first, _last, _new_elem + (_pos - _elem));
+            // fill old values after pos
+            _new_avail = std::uninitialized_copy(_pos, _pos + (_last - _pos), _new_elem + (_pos - _elem) + (_last - _first));
+        }
+
+        // delete old elements (if were any)
+        if(!empty()) uncreate();
+
+        // update pointers
+        _elem = _new_elem;
+        _avail = _new_avail;
+        _limit = _new_elem + _new_size;
+    } else {
+        if (!empty()) {
+            // back up old elements from the vector
+            iterator _old_elem = alloc.allocate(capacity());
+            iterator _old_avail = std::uninitialized_copy(_elem, _avail, _old_elem);
+
+          	// destroy old elements from the vector
+            destroy();
+
+// if position iterator points to the first element of the vector
+            if (_pos == _elem && _elem != nullptr) {
+                // fill new values
+                _avail = std::uninitialized_copy(_first, _last, _elem);
+                // fill old values
+                _avail = std::uninitialized_copy(_old_elem, _old_avail, _elem + (_last - _first));
+// if position iterator points to the *last* element of the vector
+            } else if (_pos == _avail && _elem != nullptr) {
+                // fill old values
+                _avail = std::uninitialized_copy(_old_elem, _old_avail, _elem);
+                // fill new values
+                _avail = std::uninitialized_copy(_first, _last, _elem + (_old_avail - _old_elem));
+// if there are no elements in the vector
+            } else if(_avail == nullptr) {
+                _avail = std::uninitialized_copy(_first, _last, _elem);
             } else {
-                _temp = _elem;
-                _elem = new _T[_n];
-
-                std::copy(&_temp[0], &_temp[_sz], &_elem[0]);
-                std::fill(&_elem[_sz], &_elem[_n], 0);
-
-                _change_size_and_capacity(_n, _capac);
+                // fill old values before pos
+                _avail = std::uninitialized_copy(_old_elem, _old_elem + (_pos - _elem), _elem);
+                // fill new values
+                _avail = std::uninitialized_copy(_first, _last, _pos);
+                // fill old values after pos
+                _avail = std::uninitialized_copy(_old_elem + (_pos - _elem), _old_avail, _pos + (_last - _first));
             }
+        } else {
+            _avail = std::uninitialized_copy(_first, _last, _elem);
         }
     }
+}
 ```
 
 
 
+### Analizė
+
+#### vector<int>
+
+Sukuriami vektoriai ir užpildomi reikšmėmis [0 ; dydis)
+
+| KONTEINERIS\DYDIS | 100000   | 1000000  | 10000000 | 100000000 |
+| ----------------- | -------- | -------- | -------- | --------- |
+| STD::VECTOR       | 0.000992 | 0.006448 | 0.07688  | 0.772766  |
+| CUSTOM VECTOR     | 0.000497 | 0.004465 | 0.062497 | 0.570895  |
+
+#### vector<Student>
+
+Sukuriami vektoriai ir užpildomi prieš tai sukurtu studento objektu
 
 ```c++
-void push_back(_T _val) {
-        // If vector is still capable to store one more value
-        if (_sz+1 <= _capac) {
-            _elem[_sz] = _val;
-            _sz++;
-        } else { // If new value exceeds capacity of the vector
-            reserve(std::round(1 + _capac * 1.5));
-            _elem[_sz] = _val;
-            _sz++;
-        }
-    }
+Student stud = Student();
+stud.setName("Jonas");
+stud.setSurname("Jonaitis");
+stud.setGrades({10, 9, 9, 10, 8, 7, 9, 10});
+stud.setExam(10);
+stud.setGalutinis(9.8);
+stud.setGalutinisMedian(9);
+stud.setVargsiukas(false);
 ```
 
+| KONTEINERIS\DYDIS | 100000   | 1000000  | 10000000                                      | 100000000                                     |
+| ----------------- | -------- | -------- | --------------------------------------------- | --------------------------------------------- |
+| STD::VECTOR       | 0.049104 | 0.549566 | <span style="color:red">std::bad_alloc</span> | <span style="color:red">std::bad_alloc</span> |
+| CUSTOM VECTOR     | 0.063983 | 0.370017 | <span style="color:red">std::bad_alloc</span> | <span style="color:red">std::bad_alloc</span> |
+
+### Vektorių atminties paskirstymas
+
+| KONTEINERIS\DYDIS | 10000 | 100000 | 1000000 | 10000000 | 100000000 |
+| ----------------- | ------ | ------- | -------- | --------- | --------- |
+| STD::VECTOR       | 15     | 3       | 3        | 4         |3|
+| CUSTOM VECTOR     | 15     | 18      | 21       | 25        |28|
 
 
-```c++
-_T* erase(_T* _it_first, _T* _it_last) {
-    // if pointers are out of array's bounds
-        if ((_it_first < this->begin() || _it_first >= this->end())
-            || (_it_last < this->begin() || _it_last > this->end()))
-            throw std::out_of_range { "Vector::erase, possession of invalid memory" };
+### Vector'ius 3-oje užduotyje
 
-        int _ind = _it_first - this->begin(); // index
-        int _dist = _it_last - _it_first; // distance
-        _T* _temp = new _T[_capac];
+##### STD::VECTOR 100000 studentų įrašų
 
-        int _new_sz = 0;
-    
-    // if area that needs to be deleted isn't the beggining of the vector
-        if(_it_first != &_elem[0]) {
-            std::copy(&_elem[0], _it_first, &_temp[0]);
-            _new_sz += _ind;
-        }
-    
-    // if area that needs to be deleted isn't the ending of the vector
-        if(_it_last != &_elem[_sz]) {
-            std::copy(_it_last, &_elem[_sz], &_temp[_new_sz]);
-            _new_sz += _sz - _dist - _ind;
-        }
+Nuskaitymas iš failo truko: 1.11302 s
+Studentų filtravimas (skirstymas) truko: 0.299338 s
+Įrašymas į failą truko: 2.06385 s
+Darbas su "kursiokai100000.txt" užtruko: 3.4787 s
 
-        delete[] _elem; // deleting old array
-        _elem = _temp;
-        _change_size_and_capacity(_new_sz, _capac);
+##### CUSTOM VECTOR 100000 studentų įrašų
 
-        return &_elem[_ind]; // returning pointer to the memory where first deleted value was
-    }
-```
-
-
-
-```c++
-_T* insert(_T* _it_pos, _T* _it_first, _T* _it_last) {
-        int _ind = _it_pos - this->begin(); // finding position's index
-
-        if (_ind >= _sz) // if iterator is pointing to the invalid memory
-            throw std::out_of_range { "Vector::insert, possession of invalid memory" };
-
-        int _dist = _it_last - _it_first; // distance (number of values to be inserted)
-    
-        _T* _temp = new _T[_dist];
-        std::copy(_it_first, _it_last, &_temp[0]);
-    
-        if(_sz+_dist <= _capac) { // if there capacity is big enough to store values
-            _insert_value_in_pos(_temp, _ind, _dist);
-        } else { // if it need reallocation
-            reserve(_sz + _dist);
-            _insert_value_in_pos(_temp, _ind, _dist);
-        }
-    
-        delete[] _temp;
-        return &_elem[_ind];
-    }
-```
-
+Nuskaitymas iš failo truko: 1.35655 s
+Studentų filtravimas (skirstymas) truko: 0.361583 s
+Įrašymas į failą truko: 1.84214 s
+Darbas su "kursiokai100000.txt" užtruko: 3.56672 s

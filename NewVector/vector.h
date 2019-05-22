@@ -10,6 +10,8 @@
 #include<iostream>
 #include<iterator>
 #include<memory>
+#include "../vector.h"
+
 using std::cout; using std::endl; using std::size_t; using std::allocator;
 
 template <class _T>
@@ -60,7 +62,7 @@ public:
         _avail = _v._avail;
         _limit = _v._limit;
 
-        _v.clear();
+        _v._elem = _v._avail = _v._limit = nullptr;
 
         return *this;
     }
@@ -73,9 +75,7 @@ public:
     const_iterator end() const { return _avail; }
     value_type front() { return _elem; }
     const value_type front() const { return _elem; }
-    value_type back() {
-        iterator _it = _avail;
-        return *(--_it); }
+    value_type& back() { return *(end()-1); }
     const value_type back() const {
         iterator _it = _avail;
         return *(--_it); }

@@ -22,29 +22,26 @@ private:
         _capac = __capac;
     }
     void _insert_value_in_pos(const _T _val[], int _ind, int _arr_sz=1) {
-        int _temp_arr_sz = _sz - _ind;
-        _T _temp[_temp_arr_sz];
-        _sz += _arr_sz;
-        std::copy(&_elem[_ind], &_elem[_sz], &_temp[0]);
+        if(_sz != 0) {
+            int _temp_arr_sz = _sz - _ind;
+            _T _temp[_temp_arr_sz]; //FIXME: dynamic!
+            _sz += _arr_sz;
 
-        if (_arr_sz == 1)
-            _elem[_ind] = _val[0];
-        else
-            std::copy(&_val[0], &_val[_arr_sz], &_elem[_ind]);
+            std::copy(&_elem[_ind], &_elem[_sz], &_temp[0]);
 
-        if (_temp_arr_sz == 1)
-            _elem[_ind + _temp_arr_sz] = _temp[0];
-        else
-            std::copy(&_temp[0], &_temp[_temp_arr_sz], &_elem[_ind + _arr_sz]);
-//        _T _temp = _val; _T _temp2;
-//
-//        while (_ind != _sz) {
-//            _temp2 = _elem[_ind];
-//            _elem[_ind] = _temp;
-//            _temp = _temp2;
-//            _ind++;
-//        }
-//        _elem[_ind] = _temp;
+            if (_arr_sz == 1)
+                _elem[_ind] = _val[0];
+            else
+                std::copy(&_val[0], &_val[_arr_sz], &_elem[_ind]);
+
+            if (_temp_arr_sz == 1)
+                _elem[_ind + _temp_arr_sz] = _temp[0];
+            else
+                std::copy(&_temp[0], &_temp[_temp_arr_sz], &_elem[_ind + _arr_sz]);
+        } else {
+            std::cout << "NO" << std::endl;
+            std::copy(&_val[0], &_val[_arr_sz], &_elem[0]);
+        }
     }
 public:
     vector() : _sz(0), _capac(0), _elem(new _T[_sz]) {};
@@ -118,9 +115,7 @@ public:
 
         if(_n > _capac) {
             _T* _temp = _elem;
-//            std::copy(&_elem[0], &_elem[_sz], &_temp[0]);
 
-//            delete[] _elem;
             _elem = new _T[_n]; // the function causes the container to reallocate its storage increasing its capacity to n
             std::copy(&_temp[0], &_temp[_sz], &_elem[0]);
 
@@ -195,11 +190,14 @@ public:
     }
 
     _T* insert(const _T* _it_pos, const _T& _val) {
-        int _ind = _it_pos - this->begin();
+        int _ind;
+        if (_sz == 0) {
+            reserve(1);
+        }
+        _ind = _it_pos - this->begin();
 
-        if (_ind >= _sz)
-            std::cout << "WARNING FROM INSERT" << std::endl;
-//            throw std::out_of_range { "Vector::insert, possession of invalid memory" };
+        if (_ind >= _sz && _sz != 0)
+            throw std::out_of_range { "Vector::insert, possession of invalid memory" };
 
         if(_sz+1 <= _capac) { // If capacity is big enough for value insertion
             _T _temp[1] = {_val};
@@ -214,9 +212,15 @@ public:
         return &_elem[_ind];
     }
     _T* insert(_T* _it_pos, _T* _it_first, _T* _it_last) {
-        int _ind = _it_pos - this->begin();
+        int _ind;
+        if (_sz == 0) {
+            reserve(1);
+            _ind = 0;
+        } else {
+            _ind = _it_pos - this->begin();
+        }
 
-        if (_ind >= _sz)
+        if (_ind >= _sz && _sz != 0)
             throw std::out_of_range { "Vector::insert, possession of invalid memory" };
 
         int _dist = _it_last - _it_first;

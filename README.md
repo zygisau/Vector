@@ -210,7 +210,7 @@ void insert(iterator _pos, iterator _first, iterator _last) {
 
 ### Analizė
 
-#### vector<int>
+#### ``` vector<int> ```
 
 Sukuriami vektoriai ir užpildomi reikšmėmis [0 ; dydis)
 
@@ -219,7 +219,7 @@ Sukuriami vektoriai ir užpildomi reikšmėmis [0 ; dydis)
 | STD::VECTOR       | 0.000992 | 0.006448 | 0.07688  | 0.772766  |
 | CUSTOM VECTOR     | 0.000497 | 0.004465 | 0.062497 | 0.570895  |
 
-#### vector<Student>
+#### ``` vector<Student> ```
 
 Sukuriami vektoriai ir užpildomi prieš tai sukurtu studento objektu
 

@@ -262,3 +262,22 @@ Nuskaitymas iš failo truko: 1.35655 s
 Studentų filtravimas (skirstymas) truko: 0.361583 s
 Įrašymas į failą truko: 1.84214 s
 Darbas su "kursiokai100000.txt" užtruko: 3.56672 s
+
+## Changelog
+### [v1.1](https://github.com/zygisau/Vector/releases/tag/v1.1) - (2019-05-25)
+
+**Pridėta**
+- Nauja vektoriaus klasė, su kuria galima buvo atlikti visas užduotis.
+
+**Koreguota**
+- Padarytos užduotys įdėtos į readme skiltį
+
+> SVARBU
+Sena klasė *NĖRA* naudojama. Palikau tik dėl to, jog ten irgi buvo įdėta darbo.
+**Naudojama klasė yra ./NewVector./vector.h faile**
+
+### [v1.0](https://github.com/zygisau/Vector/releases/tag/v1.0) - (2019-05-18)  
+
+**Pridėta** 
+
+- Pagrindinės vektoriaus funkcijos

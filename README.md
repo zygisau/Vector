@@ -1,4 +1,7 @@
 # Vector
+
+![version][version-badge]  
+
 "Rankų darbo" C++ vektoriaus klasė.
 
 ### Funkcijos
@@ -281,3 +284,5 @@ Sena klasė *NĖRA* naudojama. Palikau tik dėl to, jog ten irgi buvo įdėta da
 **Pridėta** 
 
 - Pagrindinės vektoriaus funkcijos
+
+[version-badge]: https://img.shields.io/badge/version-1.1-green.svg

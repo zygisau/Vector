@@ -182,7 +182,7 @@ void insert(iterator _pos, iterator _first, iterator _last) {
                 _avail = std::uninitialized_copy(_first, _last, _elem);
                 // fill old values
                 _avail = std::uninitialized_copy(_old_elem, _old_avail, _elem + (_last - _first));
-// if position iterator points to the *last* element of the vector
+// if position iterator points to the last* element of the vector
             } else if (_pos == _avail && _elem != nullptr) {
                 // fill old values
                 _avail = std::uninitialized_copy(_old_elem, _old_avail, _elem);

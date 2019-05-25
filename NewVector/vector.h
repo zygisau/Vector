@@ -259,7 +259,7 @@ public:
                 _avail = std::uninitialized_copy(_first, _last, _elem);
             }
         }
-        return _avail[_index];
+        return &_avail[_index];
     }
     // erase
     iterator erase(iterator _first, iterator _last) {
@@ -296,7 +296,7 @@ public:
             _elem = _new_elem;
             _avail = _limit = _new_avail;
         }
-        return _elem[_index];
+        return &_elem[_index];
     }
 private:
     iterator _elem;

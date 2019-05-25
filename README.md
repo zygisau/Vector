@@ -268,7 +268,7 @@ Darbas su "kursiokai100000.txt" užtruko: 3.56672 s
 
 ## Changelog
 
-### [v1.2](https://github.com/zygisau/Vector/releases/tag/v1.1) - (2019-05-25)
+### [v1.2](https://github.com/zygisau/Vector/releases/tag/v1.2) - (2019-05-25)
 
 **Koreguota**
 - Ištaisyta klaida, kur iterator grąžinančios funkcijos grąžindavo elementą (kas neleido kompiliatoriui sukompiliuoti kodo)

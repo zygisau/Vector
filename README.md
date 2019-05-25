@@ -267,6 +267,16 @@ Studentų filtravimas (skirstymas) truko: 0.361583 s
 Darbas su "kursiokai100000.txt" užtruko: 3.56672 s
 
 ## Changelog
+
+### [v1.2](https://github.com/zygisau/Vector/releases/tag/v1.1) - (2019-05-25)
+
+**Koreguota**
+- Ištaisyta klaida, kur iterator grąžinančios funkcijos grąžindavo elementą (kas neleido kompiliatoriui sukompiliuoti kodo)
+
+> SVARBU
+Sena klasė *NĖRA* naudojama. Palikau tik dėl to, jog ten irgi buvo įdėta darbo.
+**Naudojama klasė yra ./NewVector./vector.h faile**
+
 ### [v1.1](https://github.com/zygisau/Vector/releases/tag/v1.1) - (2019-05-25)
 
 **Pridėta**
@@ -285,4 +295,4 @@ Sena klasė *NĖRA* naudojama. Palikau tik dėl to, jog ten irgi buvo įdėta da
 
 - Pagrindinės vektoriaus funkcijos
 
-[version-badge]: https://img.shields.io/badge/version-1.1-green.svg
+[version-badge]: https://img.shields.io/badge/version-1.2-green.svg

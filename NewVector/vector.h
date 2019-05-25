@@ -10,7 +10,7 @@
 #include<iostream>
 #include<iterator>
 #include<memory>
-#include "../vector.h"
+#include <cmath>
 
 using std::cout; using std::endl; using std::size_t; using std::allocator;
 
@@ -20,6 +20,8 @@ public:
     // typedefs
     typedef _T* iterator;
     typedef const _T* const_iterator;
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+    typedef const std::reverse_iterator<const_iterator> const_reverse_iterator;
     typedef size_t size_type;
     typedef _T value_type;
 
@@ -66,9 +68,33 @@ public:
 
         return *this;
     }
+    bool operator==(const vector<_T>& _v2) {
+        if(this->size() != _v2.size()) // compare sizes
+            return false;
 
+        for (int i=0; i<this->size(); i++) {// compare values
+            if((*this)[i] != _v2[i]) return false;
+        }
 
-    // iterators returning functions
+        return true;
+    }
+    bool operator!=(const vector<_T>& _v2) {
+        return !((*this) == _v2);
+    }
+    bool operator<(const vector<_T>& _v2) {
+        return std::lexicographical_compare(this->begin(), this->end(), _v2.begin(), _v2.end());
+    }
+    bool operator>(const vector<_T>& _v2) {
+        return _v2 < (*this);
+    }
+    bool operator<=(const vector<_T>& _v2) {
+        return !(_v2 < (*this));
+    }
+    bool operator>=(const vector<_T>& _v2) {
+        return !((*this) < _v2);
+    }
+
+    // iterators/values returning functions
     iterator begin() { return _elem; }
     const_iterator begin() const { return _elem; }
     iterator end() { return _avail; }
@@ -79,21 +105,17 @@ public:
     const value_type back() const {
         iterator _it = _avail;
         return *(--_it); }
-    iterator rbegin() {
-        iterator _it = _limit;
-        return --_it;
+    reverse_iterator rbegin() {
+        return reverse_iterator(_avail);
     }
-    const_iterator rbegin() const {
-        iterator _it = _limit;
-        return --_it;
+    const_reverse_iterator rbegin() const {
+        return const_reverse_iterator(_avail);
     }
     iterator rend() {
-        iterator _it = _elem;
-        return ++_it;
+        return reverse_iterator(_elem);
     }
     const_iterator rend() const {
-        iterator _it = _elem;
-        return ++_it;
+        return const_reverse_iterator(_elem);
     }
 
     void push_back(const _T& _val) {
@@ -171,8 +193,9 @@ public:
         _avail = _last_elem;
     }
     // insert
-    void insert(iterator _pos, iterator _first, iterator _last) {
+    iterator insert(iterator _pos, iterator _first, iterator _last) {
         size_type _new_size = size() + (_last - _first);
+        const int _index = _pos - _elem;
 
         if (_new_size > capacity()) {
             // new memory allocation
@@ -236,9 +259,11 @@ public:
                 _avail = std::uninitialized_copy(_first, _last, _elem);
             }
         }
+        return _avail[_index];
     }
     // erase
-    void erase(iterator _first, iterator _last) {
+    iterator erase(iterator _first, iterator _last) {
+        const int _index = _first - _avail;
         if (_last == _avail && _elem != nullptr) {
             iterator _new_elem = alloc.allocate(_first - _elem);
             iterator _new_avail = std::uninitialized_copy(_elem, _first, _new_elem);
@@ -271,6 +296,7 @@ public:
             _elem = _new_elem;
             _avail = _limit = _new_avail;
         }
+        return _elem[_index];
     }
 private:
     iterator _elem;
